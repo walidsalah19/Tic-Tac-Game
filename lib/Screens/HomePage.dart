@@ -21,88 +21,24 @@ class HomePageState extends State {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            SwitchListTile.adaptive(
-                title: const Text(
-                  "Turn of/on two player",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                value: _isSwitched,
-                onChanged: (bool value) {
-                  setState(() {
-                    _isSwitched = value;
-                  });
-                }),
-            Text(
-              "It's $_activePlayer Turn",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
+        backgroundColor: Theme.of(context).primaryColor,
+        body: SafeArea(
+          child:(MediaQuery.of(context).orientation==Orientation.portrait)? Column(children: [
+            ...firstBlock(),
+            gridList(),
+            ...secondBlock(),
+          ]):Row(
+            children: [
+              Expanded(
+                child: Column(children: [
+                  ...firstBlock(),
+                  ...secondBlock(),
+                ]),
               ),
-              textAlign: TextAlign.center,
-            ),
-            Expanded(
-                child: GridView.count(
-              crossAxisCount: 3,
-              childAspectRatio: 1.0,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-              padding: const EdgeInsets.all(16),
-              children: List.generate(
-                  9,
-                  (index) => InkWell(
-                        onTap: (_gameOver)
-                            ? null
-                            : () {
-                                onTap(index);
-                              },
-                        borderRadius: BorderRadius.circular(18),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).splashColor,
-                              borderRadius: BorderRadius.circular(18)),
-                          child: Center(
-                            child: Text(
-                              checkPlay(index),
-                              style: TextStyle(
-                                color: (checkPlay(index) == "x")
-                                    ? Colors.blueAccent
-                                    : Colors.red,
-                                fontSize: 22,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      )),
-            )),
-            Text(
-              _result,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  repeatGame();
-                });
-              },
-              icon: const Icon(Icons.repeat),
-              label: const Text("Repeat"),
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).splashColor)),
-            )
-          ],
-        ),
-      ),
-    );
+              gridList()
+            ],
+          ),
+        ));
   }
 
   void onTap(int index) async {
@@ -119,10 +55,12 @@ class HomePageState extends State {
   void updateOnTap(int index) {
     setState(() {
       _activePlayer = (_activePlayer == "x") ? "y" : "x";
-      _result = _game.checkWinner();
+      var list = _game.checkWinner();
+      _result = list[0];
+      _gameOver = list[1];
+      print("Game over  $_gameOver");
       if (_result.isNotEmpty) {
         _result = "The Winner is $_result";
-        _gameOver = true;
       } else if (_gameOver && _result.isEmpty) {
         _result = "It's Draw";
       }
@@ -149,5 +87,92 @@ class HomePageState extends State {
     _result = '';
     Player.playery.clear();
     Player.playerx.clear();
+  }
+
+  List<Widget> secondBlock() {
+    return [
+      Text(
+        _result,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      ElevatedButton.icon(
+        onPressed: () {
+          setState(() {
+            repeatGame();
+          });
+        },
+        icon: const Icon(Icons.repeat),
+        label: const Text("Repeat"),
+        style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all(Theme.of(context).splashColor)),
+      )
+    ];
+  }
+
+  List<Widget> firstBlock() {
+    return [
+      SwitchListTile.adaptive(
+          title: const Text(
+            "Turn of/on two player",
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          value: _isSwitched,
+          onChanged: (bool value) {
+            setState(() {
+              _isSwitched = value;
+            });
+          }),
+      Text(
+        "It's $_activePlayer Turn",
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+        ),
+        textAlign: TextAlign.center,
+      )
+    ];
+  }
+
+  Widget gridList() {
+    return Expanded(
+        child: GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      crossAxisSpacing: 8.0,
+      mainAxisSpacing: 8.0,
+      padding: const EdgeInsets.all(16),
+      children: List.generate(
+          9,
+          (index) => InkWell(
+                onTap: (_gameOver)
+                    ? null
+                    : () {
+                        onTap(index);
+                      },
+                borderRadius: BorderRadius.circular(18),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).splashColor,
+                      borderRadius: BorderRadius.circular(18)),
+                  child: Center(
+                    child: Text(
+                      checkPlay(index),
+                      style: TextStyle(
+                        color: (checkPlay(index) == "x")
+                            ? Colors.blueAccent
+                            : Colors.red,
+                        fontSize: 22,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              )),
+    ));
   }
 }

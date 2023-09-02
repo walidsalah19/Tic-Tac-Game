@@ -11,7 +11,9 @@ class Game {
     }
   }
 
-  String checkWinner() {
+  List<dynamic> checkWinner() {
+    List<dynamic> list = [];
+    bool end = false;
     String winner = "";
     if (Player.playerx.containAll(0, 1, 2) ||
         Player.playerx.containAll(3, 4, 5) ||
@@ -22,6 +24,7 @@ class Game {
         Player.playerx.containAll(0, 4, 8) ||
         Player.playerx.containAll(2, 4, 6)) {
       winner = "x";
+      end = true;
     } else if (Player.playery.containAll(0, 1, 2) ||
         Player.playery.containAll(3, 4, 5) ||
         Player.playery.containAll(6, 7, 8) ||
@@ -31,8 +34,15 @@ class Game {
         Player.playery.containAll(0, 4, 8) ||
         Player.playery.containAll(2, 4, 6)) {
       winner = "y";
+      end = true;
     }
-    return winner;
+    else if(Player.playery.length+Player.playerx.length==9)
+      {
+        end=true;
+      }
+    list.add(winner);
+    list.add(end);
+    return list;
   }
 
   Future<void> autoPlay(String activePlayer) async {
@@ -42,11 +52,13 @@ class Game {
         auto.add(i);
       }
     }
-    Random random = Random();
-    int ranNumber = random.nextInt(auto.length);
-    int select = auto[ranNumber];
-
-    playGame(select, activePlayer);
+    if (auto.isNotEmpty) {
+      Random random = Random();
+      int ranNumber = random.nextInt(auto.length);
+      int select = 0;
+      select = auto[ranNumber];
+      playGame(select, activePlayer);
+    }
   }
 }
 
